@@ -1,29 +1,28 @@
 import conf from "../conf/conf"
-import { Client, Databases, Storage, Query } from "appwrite"
+import { Client, ID, Databases, Storage, Query } from "appwrite"
 
 export class Service {
-    client = Client()
-    databases
-    storage
+    client = new Client()
+    databases;
+    bucket;
 
     constructor() {
         this.client.setEndpoint(conf.appWriteEndUrl).setProject(conf.appWriteProjectId)
-        this.databases(Databases(this.client))
-        this.storage(Storage(this.client))
+        this.databases = new Databases(this.client)
+        this.bucket = new Storage(this.client)
     }
 
-    async createPost({ title, slug, content, featuredImg, status, userId }) {
+    async createPost({ title, slug, content, featuredImage, status, userId }) {
         try {
-            return await this.databases.createDocument(conf.appWriteDatabaseId, conf.appWriteDatabaseCollectionId, { title, slug, content, featuredImg, status, userId })
-
+            return await this.databases.createDocument(conf.appWriteDatabaseId, conf.appWriteDatabaseCollectionId, slug, { title, content, featuredImage, status, userId })
         } catch (error) {
-            console.log(`Error in createPost: ${error}`)
+            console.log(`Error in createPost: ${error.message}`)
         }
     }
 
-    async updatePost(slug, { title, content, featuredImg, status }) {
+    async updatePost(slug, { title, content, featuredImage, status }) {
         try {
-            return await this.databases.updateDocument(conf.appWriteDatabaseId, conf.appWriteDatabaseCollectionId, slug, { title, content, featuredImg, status })
+            return await this.databases.updateDocument(conf.appWriteDatabaseId, conf.appWriteDatabaseCollectionId, slug, { title, content, featuredImage, status })
 
         } catch (error) {
             console.log(`Error in updatePost: ${error}`)
@@ -57,14 +56,10 @@ export class Service {
             return false;
         }
     }
-    
+
     async uploadFile(file) {
         try {
-            return await this.bucket.createFile(
-                conf.appWriteBucketId,
-                ID.unique(),
-                file
-            )
+            return await this.bucket.createFile(conf.appWriteBucketId, ID.unique(), file)
         } catch (error) {
             console.log("Appwrite serive :: uploadFile :: error", error);
             return false
@@ -73,10 +68,7 @@ export class Service {
 
     async deleteFile(fileId) {
         try {
-            await this.bucket.deleteFile(
-                conf.appWriteBucketId,
-                fileId
-            )
+            await this.bucket.deleteFile(conf.appWriteBucketId, fileId)
             return true
         } catch (error) {
             console.log("Appwrite serive :: deleteFile :: error", error);
@@ -85,12 +77,9 @@ export class Service {
     }
 
     getFilePreview(fileId) {
-        return this.bucket.getFilePreview(
-            conf.appWriteBucketId,
-            fileId
-        )
+        return this.bucket.getFilePreview(conf.appWriteBucketId, fileId)
     }
 }
 
-const service = Service()
+const service = new Service()
 export default service

@@ -3,10 +3,11 @@ import authService from './appwrite/auth'
 import { useDispatch } from 'react-redux'
 import { login, logout } from './store/features/authSlice'
 import { Footer, Header } from './components/index'
+import { Outlet } from 'react-router-dom'
 import './App.css'
 
-const App = () => {
-  const [isLoading, setIsLoading] = useState(true)
+function App  () {
+  const [loading, setLoading] = useState(true)
   const dispatch = useDispatch()
 
   useEffect(() => {
@@ -17,15 +18,15 @@ const App = () => {
       else {
         dispatch(logout())
       }
-    }).finally(() => setIsLoading(false))
+    }).finally(() => setLoading(false))
   }, [])
 
-  return !isLoading ?
+  return !loading ?
     <div className='min-h-screen flex flex-wrap content-between bg-gray-400'>
       <div className='w-full block'>
         <Header />
         <main>
-          ToDo {/* <OutLet /> */}
+          <Outlet />
         </main>
         <Footer />
       </div>
